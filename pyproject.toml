@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "auth"
+version = "0.1.0"
+description = ""
+authors = ["None"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.85.1"
+SQLAlchemy = "^1.4.42"
+sqlalchemy2-stubs = "^0.0.2-alpha.29"
+asyncpg = "^0.27.0"
+python-jose = "^3.3.0"
+uuid7 = "^0.1.0"
+user-agents = "^2.2.0"
+passlib = "^1.7.4"
+pyfa-converter = "^1.0.3"
+phonenumbers = "^8.12.57"
+uvicorn = "^0.19.0"
+starlette-exporter = "^0.14.0"
+opencensus = "^0.11.0"
+asynclog = "^0.1.7"
+pydantic = {extras = ["email"], version = "^1.10.2"}
+cashews = "^4.7.1"
+redis = "^4.3.4"
+python-multipart = "^0.0.5"
+python-dotenv = "^0.21.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
