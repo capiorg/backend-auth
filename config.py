@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     )
 
     BASE_DOMAIN: str = Field(env="BASE_DOMAIN", default="0.0.0.0")
+    PORT: int = Field(env="PORT", default=80)
 
     DEBUG: bool = Field(env="DEBUG", default=False)
     LOGGING: bool = Field(env="LOGGING", default=True)
