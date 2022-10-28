@@ -108,6 +108,9 @@ def decode_jwt(
             algorithms=[settings_app.JWT_ALGORITHM],
             options={"verify_aud": False},
         )
+        if datetime.now().timestamp() > payload.get("exp"):
+            raise credentials_exception
+
         sub = payload.get("sub", None)
         session = payload.get("session", None)
 
