@@ -1,7 +1,5 @@
 import logging
 from logging.config import dictConfig
-
-import uvicorn
 from fastapi import FastAPI
 from opencensus.trace.samplers import AlwaysOnSampler
 from smsaero.client import SMSAero
