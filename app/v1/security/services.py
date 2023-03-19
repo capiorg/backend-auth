@@ -60,8 +60,8 @@ class UserSessionService:
         session_type: SessionTypeEnum,
     ) -> UserSession:
         fingerprint = UserAgentInformation(v=user_agent)
-        ip_info = await self.whois.get(ip=ip_address)
-
+        # ip_info = await self.whois.get(ip=ip_address)
+        # print(ip_info)
         random_code = generate_code()
 
         await self.send_code(phone=user.phone, code=random_code)
@@ -75,14 +75,20 @@ class UserSessionService:
             os_version=fingerprint.os.version_string,
             browser_family=fingerprint.browser.family,
             browser_version=fingerprint.browser.version_string,
-            ip=ip_info.ip,
-            country=ip_info.country,
-            city=ip_info.city,
+            ip=ip_address,
+            # country=ip_info.country,
+            # city=ip_info.city,
+            country="Russia",
+            city="Moscow",
             session_type=session_type,
         )
 
     async def send_code(self, phone: str, code: str) -> None:
-        await self.sms_aero.flash_call.send(phone=phone, code=code)
+        await self.sms_aero.sms.send(
+            phone=phone,
+            sign="SMS Aero",
+            text=f"Ваш код для авторизации в CapiGram: {code}",
+        )
 
     async def get(self, uuid: UUID) -> UserSession:
         return await self.repo.get(uuid=uuid)

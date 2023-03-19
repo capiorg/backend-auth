@@ -58,7 +58,7 @@ def get_application_v1() -> FastAPI:
         app_name="v1",
         skip_paths=["/api/v1/docs", "/api/v1/__metrics"],
     )
-
+    #
     if settings_app.LOGGING:
         application.middleware("http")(LoggingMiddleware())
         if settings_sensus_app.ENABLE_TELEMETRY:

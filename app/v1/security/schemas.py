@@ -21,7 +21,7 @@ class GetAccessTokenModel(BaseModelORM):
 class OAuth2PhonePasswordRequestForm(BaseModelORM):
     grant_type: str = Field(default=None, regex="password")
     phone: str = Field(...)
-    password: str
+    password: str = Field(...)
 
     @validator("phone", always=True)
     def validate_number(cls, v: str):

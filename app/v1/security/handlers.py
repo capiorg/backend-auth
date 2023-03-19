@@ -33,7 +33,7 @@ security_router = APIRouter()
 @security_router.post(
     "/auth/login",
     summary="Предварительная авторизация пользователя с последующим FlashCAll",
-    response_model=BaseResponse[GetSession],
+    # response_model=BaseResponse[GetSession],
 )
 @standardize_response(status_code=200)
 async def login(
@@ -60,6 +60,7 @@ async def login(
         if user.status_id == StatusEnum.NOT_ACTIVE
         else SessionTypeEnum.AUTH
     )
+
     session = await user_session_service.create(
         user=user,
         ip_address=current_ip,
@@ -89,10 +90,16 @@ async def login(
     В случае успешной авторизации отправляется access_token
     """
     session = await user_session_service.get(uuid=form_data.session_id)
+
+    print(f"{session=}")
     if session.code == form_data.code:
         if session.status_id == 3:
             await user_session_service.activate_code(uuid=form_data.session_id)
-            user = await user_service.get_one_from_uuid(uuid=session.user_id)
+            user = await user_service.get_one_from_uuid(
+                uuid=session.user_id,
+                author_uuid=session.user_id,
+            )
+
             await user_service.activate(uuid=user.uuid)
 
             access_token = create_access_token(user=user, session=session.uuid)

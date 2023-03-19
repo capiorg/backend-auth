@@ -1,9 +1,11 @@
 from typing import Optional
 
 from asyncpg import ForeignKeyViolationError
+from asyncpg import NotNullViolationError
 from asyncpg import UniqueViolationError
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.exc import DatabaseError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import NoResultFound
 
 from app.exceptions.db.models import ExceptionSQL
@@ -26,6 +28,15 @@ def handle_foreign_key_error(exc: DatabaseError):
             code=400,
             detail=f"Произошла ошибка, с объектом связана таблица {table_name}",
             exc=exc,
+        )
+
+
+def handle_not_null_violation_error(exc: IntegrityError):
+    if exc.orig.sqlstate == NotNullViolationError.sqlstate:
+        raise ExceptionSQL(
+            code=400,
+            detail=f"Произошла ошибка при вставке объекта.",
+            exc=exc.orig.obj,
         )
 
 

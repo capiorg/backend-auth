@@ -15,11 +15,13 @@ from jose import jwt
 from starlette import status as starlette_status
 
 from app.db.models import User
+from app.exceptions.routes.models import ForbiddenError
 from app.v1.security.context import verify_password
 from app.v1.security.schemas import SystemUserSessionModel
 from app.v1.statuses.enums import StatusEnum
 from app.v1.users.dependencies import UsersDependencyMarker
 from app.v1.users.schemas import GetCurrentUserModel
+from app.v1.users.schemas import RoleEnum
 from app.v1.users.services import UserService
 from config import settings_app
 from misc import cache
@@ -131,29 +133,39 @@ def depends_jwt(
 
 
 class GetCurrentUser:
-    def __init__(self, status: Optional[List[StatusEnum]] = None):
+    def __init__(
+        self,
+        status: Optional[List[StatusEnum]] = None,
+        role: Optional[List[RoleEnum]] = None,
+    ):
         self.status = status or [StatusEnum.ACTIVE]
+        self.role = role or [RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.MODERATOR]
 
-    @cache.hit(
-        ttl=timedelta(minutes=10),
-        cache_hits=100,
-        update_after=50,
-        key="users:get_current:user_uuid:{token.user_uuid}:session_uuid:{token.session_uuid}",
-        prefix="v2",
-    )
+    # @cache.hit(
+    #     ttl=timedelta(minutes=10),
+    #     cache_hits=100,
+    #     update_after=50,
+    #     key="users:get_current:user_uuid:{token.user_uuid}:session_uuid:{token.session_uuid}",
+    #     prefix="v2",
+    # )
     async def __call__(
         self,
         user_service: UserService = Depends(UsersDependencyMarker),
         token: SystemUserSessionModel = Depends(dependency=depends_jwt),
     ) -> GetCurrentUserModel:
-        user_db = await user_service.get_one_from_uuid(token.user_uuid)
+        user_db = await user_service.get_one_from_uuid(
+            uuid=token.user_uuid,
+            author_uuid=token.user_uuid
+        )
         if user_db is None:
             raise credentials_exception
 
         if user_db.status_id not in self.status:
             raise account_disabled
 
+        if user_db.role.id not in self.role:
+            raise ForbiddenError("Недостаточно прав на выполнение данной операции")
+
         result = GetCurrentUserModel.from_orm(user_db)
         result.session_id = token.session_uuid
-
         return result

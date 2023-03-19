@@ -1,14 +1,19 @@
 import enum
 
+from sqlalchemy import Boolean
 from sqlalchemy import Column
+from sqlalchemy import DateTime
 from sqlalchemy import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
+from sqlalchemy import Numeric
 from sqlalchemy import String
+from sqlalchemy import Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.orm import query_expression
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.functions import current_timestamp
 from uuid_extensions import uuid7
 
 from app.db.mixins import TimestampMixin
@@ -20,11 +25,31 @@ class SessionTypeEnum(str, enum.Enum):
     AUTH = "AUTH"
 
 
+class Role(Base):
+    __tablename__ = "roles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, unique=True)
+
+
 class Statuses(Base):
     __tablename__ = "statuses"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, unique=True)
+
+
+class Document(
+    TimestampMixin,
+    Base,
+):
+    __tablename__ = "documents"
+
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid7)
+    document_id = Column(UUID(as_uuid=True))
+    filename = Column(Text, nullable=True)
+    size_bytes = Column(Numeric, nullable=True)
+    mime_type = Column(String(255), nullable=True)
 
 
 class StatusMixin(Base):
@@ -50,6 +75,21 @@ class User(TimestampMixin, StatusMixin, Base):
     last_name = Column(String(255), nullable=False)
     password = Column(String)
 
+    avatar_id = Column(
+        UUID(as_uuid=True), ForeignKey("documents.uuid")
+    )
+
+    is_online = Column(Boolean, default=False)
+    last_activity = Column(DateTime, default=current_timestamp())
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
+
+    avatar = relationship(
+        "Document",
+        lazy="joined"
+    )
+    role = relationship(
+        "Role",
+    )
     is_me = query_expression()
 
 
