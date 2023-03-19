@@ -107,6 +107,7 @@ class UserRepository:
                     joinedload(self.model.role),
                     joinedload(self.model.avatar),
                 )
+                .filter(User.uuid != author_uuid)
             )
             curr = await self.base.session.execute(stmt)
             return curr.scalars().all()
