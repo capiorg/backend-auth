@@ -7,5 +7,5 @@ class Permission:
     PROFILE_GET = {
         RoleEnum.USER: [RoleEnum.USER],
         RoleEnum.MODERATOR: [RoleEnum.USER, RoleEnum.MODERATOR],
-        RoleEnum.ADMIN: [RoleEnum.USER, RoleEnum.MODERATOR, RoleEnum.USER]
+        RoleEnum.ADMIN: [RoleEnum.USER, RoleEnum.MODERATOR, RoleEnum.ADMIN]
     }
